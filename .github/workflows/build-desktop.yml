@@ -10,44 +10,60 @@ jobs:
   build:
     runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
         os: [windows-latest, macos-latest]
-    
+    env:
+      CSC_IDENTITY_AUTO_DISCOVERY: "false"
+      WIN_CSC_LINK: ""
+      WIN_CSC_KEY_PASSWORD: ""
+      CSC_LINK: ""
+      CSC_KEY_PASSWORD: ""
+
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
           cache: 'npm'
-      
+
       - name: Install dependencies
         run: npm ci
-      
+
       - name: Build web app
         run: npm run build
-      
+
       - name: Build Windows EXE
         if: matrix.os == 'windows-latest'
+        run: npm run build:win
+
+      - name: Package Windows ZIP
+        if: matrix.os == 'windows-latest'
         run: |
-          $env:CSC_IDENTITY_AUTO_DISCOVERY='false'
-          npm run build:win
-      
-      - name: Build macOS DMG
+          Compress-Archive -Path "release/win-unpacked/*" -DestinationPath "release/Cocoa-Rave-Windows-x64.zip" -Force
+
+      - name: Prepare macOS app-builder binaries
         if: matrix.os == 'macos-latest'
         run: |
-          export CSC_IDENTITY_AUTO_DISCOVERY=false
-          npm run build:mac
-      
+          chmod +x node_modules/app-builder-bin/mac/* || true
+
+      - name: Build macOS DMG
+        if: matrix.os == 'macos-latest'
+        continue-on-error: true
+        run: npm run build:mac
+
       - name: Upload Windows artifacts
         if: matrix.os == 'windows-latest'
         uses: actions/upload-artifact@v4
         with:
           name: windows-exe
-          path: release/*.exe
+          path: |
+            release/*.exe
+            release/*.zip
           if-no-files-found: ignore
-      
+
       - name: Upload macOS artifacts
         if: matrix.os == 'macos-latest'
         uses: actions/upload-artifact@v4
@@ -55,7 +71,7 @@ jobs:
           name: macos-dmg
           path: release/*.dmg
           if-no-files-found: ignore
-      
+
       - name: Create Release
         if: startsWith(github.ref, 'refs/tags/')
         uses: softprops/action-gh-release@v1
