@@ -64,7 +64,9 @@
           "arch": ["x64", "arm64"]
         }
       ],
-      "category": "public.app-category.food-drink"
+      "category": "public.app-category.food-drink",
+      "icon": false,
+      "forceCodeSigning": false
     },
     "nsis": {
       "oneClick": false,
