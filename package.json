@@ -60,13 +60,12 @@
     "mac": {
       "target": [
         {
-          "target": "dmg",
+          "target": "zip",
           "arch": ["x64", "arm64"]
         }
       ],
       "category": "public.app-category.food-drink",
-      "icon": false,
-      "forceCodeSigning": false
+      "identity": null
     },
     "nsis": {
       "oneClick": false,

@@ -72,8 +72,8 @@ jobs:
         if: matrix.os == 'macos-latest'
         uses: actions/upload-artifact@v4
         with:
-          name: macos-dmg
-          path: release/*.dmg
+          name: macos-app
+          path: release/*.zip
           if-no-files-found: ignore
 
   create-release:
@@ -90,7 +90,7 @@ jobs:
       - name: Download macOS artifacts
         uses: actions/download-artifact@v4
         with:
-          name: macos-dmg
+          name: macos-app
           path: artifacts/macos
         continue-on-error: true
 
@@ -111,7 +111,7 @@ jobs:
 
             ### Downloads
             - **Windows**: Download `Cocoa-Rave-Windows-x64.zip` and extract. Run `Cocoa Rave.exe`
-            - **macOS**: Download the `.dmg` file (if available), open it, and drag Cocoa Rave to Applications
+            - **macOS**: Download the `.zip` file (if available), extract, and move `Cocoa Rave.app` to Applications
 
             ### What's Included
             - Full web application packaged as desktop app
