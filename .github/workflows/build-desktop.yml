@@ -6,6 +6,9 @@ on:
       - 'v*'
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: ${{ matrix.os }}
@@ -73,5 +76,50 @@ jobs:
           path: release/*.dmg
           if-no-files-found: ignore
 
-      # Release upload is handled manually via artifacts; disable auto GH release to avoid 403s
+  create-release:
+    needs: build
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/')
+    steps:
+      - name: Download Windows artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: windows-exe
+          path: artifacts/windows
 
+      - name: Download macOS artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: macos-dmg
+          path: artifacts/macos
+        continue-on-error: true
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            artifacts/windows/*
+            artifacts/macos/*
+          body: |
+            ## 🎉 Cocoa Rave ${{ github.ref_name }} - Desktop App Release
+
+            ### Features
+            - 🍫 Chocolate storefront with shopping cart
+            - 🐍 Snake game with high score tracking  
+            - 📊 Police reports data visualization
+            - ✨ Beautiful jelly button animations
+
+            ### Downloads
+            - **Windows**: Download `Cocoa-Rave-Windows-x64.zip` and extract. Run `Cocoa Rave.exe`
+            - **macOS**: Download the `.dmg` file (if available), open it, and drag Cocoa Rave to Applications
+
+            ### What's Included
+            - Full web application packaged as desktop app
+            - Snake game accessible from main menu
+            - All features from web version
+            - Offline-capable (after first load)
+
+            ### Web Version
+            Live at: https://cocoa-rave-store.web.app
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
