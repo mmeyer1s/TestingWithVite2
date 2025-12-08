@@ -21,6 +21,7 @@ function Header({ cartCount, onToggleCart }) {
             <span className="logo-text">Cocoa Rave</span>
           </div>
           <nav className="nav-links">
+            <a href="/snake.html" className="nav-link jelly-btn">🐍 Snake Game</a>
             <a href="/reports.html" className="nav-link jelly-btn">📊 Police Reports</a>
             <button 
               className={`cart-btn btn jelly-btn ${isCartClicked ? 'clicked' : ''}`}

@@ -25,9 +25,16 @@ function Hero() {
             Shop Now
           </button>
           <a 
-            href="/reports.html" 
-            className={`hero-btn btn btn-lg jelly-btn ${isClicked ? 'clicked' : ''}`}
+            href="/snake.html" 
+            className="hero-btn btn btn-lg jelly-btn"
             style={{ backgroundColor: 'var(--accent)', textDecoration: 'none', display: 'inline-flex', alignItems: 'center' }}
+          >
+            🐍 Play Snake
+          </a>
+          <a 
+            href="/reports.html" 
+            className="hero-btn btn btn-lg jelly-btn"
+            style={{ backgroundColor: 'var(--secondary)', textDecoration: 'none', display: 'inline-flex', alignItems: 'center' }}
           >
             📊 View Police Reports
           </a>

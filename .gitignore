@@ -25,3 +25,14 @@ dist-ssr
 
 # Firebase
 .firebase
+
+# Electron
+release/*
+!release/.gitkeep
+out
+*.dmg
+*.exe
+*.AppImage
+*.deb
+*.rpm
+release-artifacts

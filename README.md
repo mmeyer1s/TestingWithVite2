@@ -10,11 +10,12 @@ A beautiful chocolate storefront built with Vite, Bootstrap 5, and deployed on F
 
 ## 🛠️ Tech Stack
 
+- **React** - Modern UI framework
 - **Vite** - Fast build tool and dev server
 - **Bootstrap 5** - Responsive CSS framework
-- **HTML/JavaScript** - Vanilla JS for interactivity
 - **Plotly.js** - Interactive data visualizations
 - **PapaParse** - CSV parsing library
+- **Electron** - Desktop app framework
 - **Firebase Hosting** - Fast and secure web hosting
 
 ## 📦 Features
@@ -27,6 +28,15 @@ A beautiful chocolate storefront built with Vite, Bootstrap 5, and deployed on F
 - Smooth animations and transitions
 - Add to cart with quantity tracking
 - Checkout functionality
+- **Jelly button effects** - Satisfying CSS/JS animations throughout
+
+### Snake Game 🐍
+- Classic Snake game with chocolate theme
+- High score tracking (localStorage)
+- Pause/Resume functionality
+- Smooth controls with arrow keys
+- Beautiful animations and effects
+- Accessible at `/snake.html`
 
 ### Police Reports Analysis Dashboard
 - Interactive visualizations of Electronic Police Reports 2025 data
@@ -81,6 +91,34 @@ firebase deploy --only hosting
 
 ### View in Firebase Console
 https://console.firebase.google.com/project/cocoa-rave-store/overview
+
+## 💻 Desktop Application
+
+### Build Desktop Apps
+
+#### Windows EXE
+```bash
+npm run build:win
+```
+Executable: `release/win-unpacked/Cocoa Rave.exe`
+
+#### macOS DMG
+```bash
+npm run build:mac
+```
+DMG: `release/*.dmg`
+
+#### Build All Platforms
+```bash
+npm run build:all
+```
+
+### Running Electron App Locally
+```bash
+npm run electron
+```
+
+See `BUILD_INSTRUCTIONS.md` for detailed build and release instructions.
 
 ## 📁 Project Structure
 
