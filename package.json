@@ -41,6 +41,7 @@
       "node_modules/**/*",
       "package.json"
     ],
+    "publish": "never",
     "extraMetadata": {
       "main": "electron/main.js"
     },
