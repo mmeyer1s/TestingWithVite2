@@ -6,17 +6,25 @@ A beautiful chocolate storefront built with Vite, Bootstrap 5, and deployed on F
 
 **Deployed URL:** https://cocoa-rave-store.web.app
 
+**Snake Game:** https://cocoa-rave-store.web.app/snake.html
+
 **Police Reports Page:** https://cocoa-rave-store.web.app/reports.html
+
+## 📥 Desktop Apps
+
+Download the latest desktop version from [GitHub Releases](https://github.com/mmeyer1s/TestingWithVite2/releases/latest):
+- **Windows**: `.msi` installer or `.exe` portable
+- **macOS**: `.dmg` or `.app.tar.gz`
 
 ## 🛠️ Tech Stack
 
 - **React** - Modern UI framework
 - **Vite** - Fast build tool and dev server
+- **Tauri** - Rust-powered desktop app framework (smaller, faster than Electron)
+- **Firebase** - Firestore database for leaderboard, Hosting for web deployment
 - **Bootstrap 5** - Responsive CSS framework
 - **Plotly.js** - Interactive data visualizations
 - **PapaParse** - CSV parsing library
-- **Electron** - Desktop app framework
-- **Firebase Hosting** - Fast and secure web hosting
 
 ## 📦 Features
 
@@ -32,7 +40,10 @@ A beautiful chocolate storefront built with Vite, Bootstrap 5, and deployed on F
 
 ### Snake Game 🐍
 - Classic Snake game with chocolate theme
-- High score tracking (localStorage)
+- **Global leaderboard powered by Firebase Firestore**
+- Local and cloud-based high score tracking
+- Save your scores with custom player names
+- Compete with players worldwide
 - Pause/Resume functionality
 - Smooth controls with arrow keys
 - Beautiful animations and effects
@@ -92,31 +103,42 @@ firebase deploy --only hosting
 ### View in Firebase Console
 https://console.firebase.google.com/project/cocoa-rave-store/overview
 
-## 💻 Desktop Application
+## 💻 Desktop Application (Tauri)
 
-### Build Desktop Apps
+### Prerequisites
+- [Rust](https://www.rust-lang.org/tools/install) (required for building Tauri apps)
+- Node.js 18+ and npm
 
-#### Windows EXE
+### Running Desktop App in Development
 ```bash
-npm run build:win
-```
-Executable: `release/win-unpacked/Cocoa Rave.exe`
-
-#### macOS DMG
-```bash
-npm run build:mac
-```
-DMG: `release/*.dmg`
-
-#### Build All Platforms
-```bash
-npm run build:all
+npm run tauri:dev
 ```
 
-### Running Electron App Locally
+### Building Desktop Apps
+
+#### Build for Current Platform
 ```bash
-npm run electron
+npm run tauri:build
 ```
+
+#### Build for Windows
+```bash
+npm run tauri:build:win
+```
+
+#### Build for macOS (Universal Binary)
+```bash
+npm run tauri:build:mac
+```
+
+Binaries will be in `src-tauri/target/release/bundle/`
+
+### Why Tauri?
+- **Smaller file size**: ~10-20 MB vs 100+ MB with Electron
+- **Faster startup**: Uses native webview instead of bundling Chromium
+- **Lower memory usage**: More efficient than Electron
+- **Better security**: Rust-based backend with sandboxed frontend
+- **Native feel**: Uses OS native components
 
 See `BUILD_INSTRUCTIONS.md` for detailed build and release instructions.
 
