@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react'
+import { saveScore, getTopScores } from '../lib/firebase'
 
 const GRID_SIZE = 20
 const CELL_SIZE = 20
@@ -17,8 +18,24 @@ function SnakeGame() {
   const [highScore, setHighScore] = useState(() => {
     return parseInt(localStorage.getItem('snakeHighScore') || '0')
   })
+  const [showNameInput, setShowNameInput] = useState(false)
+  const [playerName, setPlayerName] = useState(() => {
+    return localStorage.getItem('snakePlayerName') || ''
+  })
+  const [leaderboard, setLeaderboard] = useState([])
+  const [showLeaderboard, setShowLeaderboard] = useState(false)
+  const [isSavingScore, setIsSavingScore] = useState(false)
   const directionRef = useRef(INITIAL_DIRECTION)
   const gameLoopRef = useRef(null)
+
+  useEffect(() => {
+    loadLeaderboard()
+  }, [])
+
+  const loadLeaderboard = async () => {
+    const scores = await getTopScores(10)
+    setLeaderboard(scores)
+  }
 
   const generateFood = useCallback(() => {
     const newFood = {
@@ -53,9 +70,14 @@ function SnakeGame() {
       // Check collision
       if (checkCollision(head, prevSnake)) {
         setGameOver(true)
-        if (score > highScore) {
+        const isNewHighScore = score > highScore
+        if (isNewHighScore) {
           setHighScore(score)
           localStorage.setItem('snakeHighScore', score.toString())
+        }
+        // Show name input for leaderboard if score > 0
+        if (score > 0) {
+          setShowNameInput(true)
         }
         return prevSnake
       }
@@ -147,17 +169,37 @@ function SnakeGame() {
     setScore(0)
     setGameOver(false)
     setIsPaused(false)
+    setShowNameInput(false)
   }
 
   const togglePause = () => {
     setIsPaused(prev => !prev)
   }
 
+  const handleSaveScore = async () => {
+    if (!playerName.trim()) {
+      alert('Please enter your name!')
+      return
+    }
+
+    setIsSavingScore(true)
+    localStorage.setItem('snakePlayerName', playerName)
+    await saveScore(playerName, score)
+    await loadLeaderboard()
+    setIsSavingScore(false)
+    setShowNameInput(false)
+    setShowLeaderboard(true)
+  }
+
+  const handleSkipSave = () => {
+    setShowNameInput(false)
+  }
+
   return (
-    <div className="snake-game-container" style={{ 
-      display: 'flex', 
-      flexDirection: 'column', 
-      alignItems: 'center', 
+    <div className="snake-game-container" style={{
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
       padding: '2rem',
       minHeight: '100vh',
       background: 'linear-gradient(135deg, var(--bg) 0%, #fff 100%)'
@@ -174,8 +216,8 @@ function SnakeGame() {
             High Score: {highScore}
           </div>
         </div>
-        <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
-          <button 
+        <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
+          <button
             className="jelly-btn btn btn-primary"
             onClick={resetGame}
             style={{ padding: '0.75rem 2rem', fontSize: '1.1rem' }}
@@ -183,7 +225,7 @@ function SnakeGame() {
             {gameOver ? 'Play Again' : 'Reset'}
           </button>
           {!gameOver && (
-            <button 
+            <button
               className="jelly-btn btn btn-secondary"
               onClick={togglePause}
               style={{ padding: '0.75rem 2rem', fontSize: '1.1rem' }}
@@ -191,10 +233,133 @@ function SnakeGame() {
               {isPaused ? 'Resume' : 'Pause'}
             </button>
           )}
+          <button
+            className="jelly-btn btn btn-info"
+            onClick={() => setShowLeaderboard(!showLeaderboard)}
+            style={{ padding: '0.75rem 2rem', fontSize: '1.1rem' }}
+          >
+            🏆 Leaderboard
+          </button>
         </div>
       </div>
 
-      {gameOver && (
+      {showNameInput && (
+        <div style={{
+          position: 'fixed',
+          top: '50%',
+          left: '50%',
+          transform: 'translate(-50%, -50%)',
+          background: 'rgba(74, 44, 42, 0.98)',
+          color: 'white',
+          padding: '2rem',
+          borderRadius: '20px',
+          textAlign: 'center',
+          zIndex: 1001,
+          boxShadow: '0 10px 40px rgba(0,0,0,0.4)',
+          minWidth: '350px'
+        }}>
+          <h2 style={{ fontSize: '2rem', marginBottom: '1rem' }}>🎉 Great Job!</h2>
+          <p style={{ fontSize: '1.2rem', marginBottom: '1.5rem' }}>Score: {score}</p>
+          <p style={{ marginBottom: '1rem' }}>Save your score to the leaderboard?</p>
+          <input
+            type="text"
+            value={playerName}
+            onChange={(e) => setPlayerName(e.target.value)}
+            placeholder="Enter your name"
+            maxLength={20}
+            style={{
+              width: '100%',
+              padding: '0.75rem',
+              fontSize: '1rem',
+              borderRadius: '8px',
+              border: '2px solid var(--accent)',
+              marginBottom: '1rem',
+              textAlign: 'center'
+            }}
+            onKeyPress={(e) => e.key === 'Enter' && handleSaveScore()}
+          />
+          <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
+            <button
+              className="jelly-btn btn btn-primary"
+              onClick={handleSaveScore}
+              disabled={isSavingScore}
+              style={{ padding: '0.75rem 1.5rem' }}
+            >
+              {isSavingScore ? 'Saving...' : 'Save Score'}
+            </button>
+            <button
+              className="jelly-btn btn btn-secondary"
+              onClick={handleSkipSave}
+              disabled={isSavingScore}
+              style={{ padding: '0.75rem 1.5rem' }}
+            >
+              Skip
+            </button>
+          </div>
+        </div>
+      )}
+
+      {showLeaderboard && (
+        <div style={{
+          position: 'fixed',
+          top: '50%',
+          left: '50%',
+          transform: 'translate(-50%, -50%)',
+          background: 'rgba(255, 255, 255, 0.98)',
+          color: 'var(--text)',
+          padding: '2rem',
+          borderRadius: '20px',
+          textAlign: 'center',
+          zIndex: 1001,
+          boxShadow: '0 10px 40px rgba(0,0,0,0.3)',
+          minWidth: '400px',
+          maxHeight: '80vh',
+          overflowY: 'auto'
+        }}>
+          <h2 style={{ fontSize: '2rem', marginBottom: '1.5rem', color: 'var(--primary)' }}>
+            🏆 Top 10 Scores
+          </h2>
+          {leaderboard.length === 0 ? (
+            <p>No scores yet. Be the first!</p>
+          ) : (
+            <div style={{ marginBottom: '1.5rem' }}>
+              {leaderboard.map((entry, index) => (
+                <div
+                  key={entry.id}
+                  style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    padding: '0.75rem',
+                    marginBottom: '0.5rem',
+                    background: index < 3 ? 'var(--accent)' : 'var(--bg)',
+                    borderRadius: '8px',
+                    fontWeight: index < 3 ? 'bold' : 'normal',
+                    fontSize: '1.1rem'
+                  }}
+                >
+                  <span>
+                    {index === 0 && '🥇 '}
+                    {index === 1 && '🥈 '}
+                    {index === 2 && '🥉 '}
+                    {index > 2 && `${index + 1}. `}
+                    {entry.playerName}
+                  </span>
+                  <span>{entry.score} pts</span>
+                </div>
+              ))}
+            </div>
+          )}
+          <button
+            className="jelly-btn btn btn-primary"
+            onClick={() => setShowLeaderboard(false)}
+            style={{ padding: '0.75rem 2rem' }}
+          >
+            Close
+          </button>
+        </div>
+      )}
+
+      {gameOver && !showNameInput && (
         <div style={{
           position: 'absolute',
           top: '50%',
@@ -235,7 +400,7 @@ function SnakeGame() {
         </div>
       )}
 
-      <div 
+      <div
         className="snake-game-board"
         style={{
           position: 'relative',
@@ -293,8 +458,8 @@ function SnakeGame() {
         <p style={{ fontSize: '1.1rem', marginBottom: '0.5rem' }}>
           Use Arrow Keys to move • Spacebar to pause
         </p>
-        <a href="/" className="nav-link jelly-btn" style={{ 
-          display: 'inline-block', 
+        <a href="/" className="nav-link jelly-btn" style={{
+          display: 'inline-block',
           padding: '0.75rem 2rem',
           marginTop: '1rem'
         }}>
@@ -306,4 +471,3 @@ function SnakeGame() {
 }
 
 export default SnakeGame
-
